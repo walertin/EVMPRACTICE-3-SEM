@@ -1,0 +1,49 @@
+#include <iostream>
+#include <vector>
+#include <iterator>
+using namespace std;
+ 
+int main()
+{
+    setlocale(LC_ALL, "rus");
+    int n, m;
+    cin >> n >> m;
+ 
+    vector<int> MyVector(n);
+    vector<int>::iterator it;
+ 
+    int itmp(0);
+    for(auto& x : MyVector)
+        x = ++itmp;
+ 
+    it = MyVector.begin();
+    int index = -1, tmp = 0, i;
+    while(MyVector.size() != 1)
+    {
+        while(tmp < m)
+        {
+            for(i = index + 1; i < MyVector.size(); ++i)
+            {
+                tmp++;
+                index = i;
+                break;
+            }
+ 
+            if(i == MyVector.size())
+            {
+                for(int j = 0; j < 1; ++j)
+                {
+                    index = -1;
+                    break;
+                }
+            }
+        }
+ 
+    tmp = 0;
+ 
+    MyVector.erase(it + index);
+    index--;
+    }
+ 
+    cout << "Ответ: " << MyVector.front();
+}
