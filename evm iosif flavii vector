@@ -10,26 +10,26 @@ int main()
     cin >> n >> m;
  
     vector<int> MyVector(n);
-    vector<int>::iterator it;
+    vector<int>::iterator it;//создаем вектор и итератор для него
  
     int itmp(0);
     for(auto& x : MyVector)
-        x = ++itmp;
+        x = ++itmp;//нумеруем все обьекты в векторе
  
     it = MyVector.begin();
-    int index = -1, tmp = 0, i;
-    while(MyVector.size() != 1)
+    int index = -1, tmp = 0, i;//пременные 
+    while(MyVector.size() != 1)//пока количество элементов не станет равным нулю
     {
-        while(tmp < m)
+        while(tmp < m)//пока темп меньше числа через которое мы удаляем 
         {
-            for(i = index + 1; i < MyVector.size(); ++i)
+            for(i = index + 1; i < MyVector.size(); ++i)//цикл,который работае пока индекс меньше чем размер массива
             {
                 tmp++;
                 index = i;
                 break;
             }
  
-            if(i == MyVector.size())
+            if(i == MyVector.size())//если после этого i = размеру массива то тогда 
             {
                 for(int j = 0; j < 1; ++j)
                 {
@@ -42,7 +42,7 @@ int main()
     tmp = 0;
  
     MyVector.erase(it + index);
-    index--;
+    index--;//в конце цикла мы обнуляем tmp и удаляем один элемент также уменьшаем индекс
     }
  
     cout << "Ответ: " << MyVector.front();
