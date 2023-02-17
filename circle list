@@ -1,0 +1,176 @@
+#include <iostream>
+
+ using namespace std;
+
+ 
+struct Node
+{
+  
+int data;
+   
+Node * next;
+ 
+};
+
+ 
+class CircularLinkedList
+{
+
+private:
+Node * head;
+
+public:
+CircularLinkedList ()
+  {
+    
+head = NULL;
+  
+} 
+void push (int data)
+  {
+    
+Node * ptr = new Node;
+    
+ptr->data = data;
+    
+ptr->next = head;
+    
+if (head != NULL)
+      {
+	
+Node * temp = head;
+	
+while (temp->next != head)
+	  
+temp = temp->next;
+	
+temp->next = ptr;
+      
+}
+    
+    else
+      
+ptr->next = ptr;
+    
+head = ptr;
+  
+}
+  
+void deleteNode (int key)
+  {
+    
+if (head == NULL)
+      
+return;
+    
+Node * curr = head, *prev;
+    
+while (curr->data != key)
+      {
+	
+if (curr->next == head)
+	  {
+	    
+cout << "Element not found";
+	    
+break;
+	  
+}
+	
+prev = curr;
+	
+curr = curr->next;
+      
+}
+    
+if (curr->next == head)
+      {
+	
+head = NULL;
+	
+free (curr);
+	
+return;
+      
+}
+    
+if (curr == head)
+      {
+	
+prev = head;
+	
+while (prev->next != head)
+	  
+prev = prev->next;
+	
+head = curr->next;
+	
+prev->next = head;
+	
+free (curr);
+      
+}
+    
+    else
+      {
+	
+prev->next = curr->next;
+	
+free (curr);
+      
+}
+  
+}
+  
+void printList ()
+  {
+    
+Node * temp = head;
+    
+if (head != NULL)
+      {
+	
+	do
+	  {
+	    
+cout << temp->data << " ";
+	    
+temp = temp->next;
+	  
+}
+	
+while (temp != head);
+      
+}
+    
+cout << endl;
+  
+}
+
+};
+
+
+ 
+int
+main ()
+{
+  
+CircularLinkedList cl;
+  
+cl.push (1);
+  
+cl.push (2);
+  
+cl.push (3);
+  
+cl.push (4);
+  
+cl.printList ();
+  
+cl.deleteNode (3);
+  
+cl.printList ();
+  
+return 0;
+
+}
