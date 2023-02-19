@@ -1,0 +1,402 @@
+#include <iostream>
+using namespace std;
+
+
+class MyError//класс с ошибкой (виртуальный)
+{
+public:
+    virtual ~MyError() {};
+    virtual void Process() = 0;
+};
+
+class Error_0 :public MyError
+{
+public:
+    void Process() { cout << "Число начинается с 0!" << endl; }
+};
+
+class _Err :public MyError
+{
+public:
+    void Process() { cout << "Некорректный ввод" << endl; }
+};
+
+class Error_1 :public MyError
+{
+public:
+    void Process() { cout << "Нечетное количество 1!" << endl; }
+};
+
+class Error_2 :public MyError
+{
+public:
+    void Process() { cout << "После 0 не может идти 1!" << endl; }
+};
+
+class Error_3 :public MyError
+{
+public:
+    void Process() { cout << "Нечетное количество 0!" << endl; }
+};
+
+class Error_4 :public MyError
+{
+public:
+    void Process() { cout << "Нет пары 1!" << endl; }
+};
+
+class Error_5 :public MyError
+{
+public:
+    void Process() { cout << "За парой 1 не следует 0!" << endl; }
+};
+
+class Error_6 :public MyError
+{
+public:
+    void Process() { cout << "Третий символ не 1!" << endl; }
+};//расписываем разные ошибки наследуя их от основного потомка
+
+class automat
+{
+protected:
+    string name;
+    string str;
+    int state; //состояние
+public:
+    virtual void start(string str) = 0;
+    virtual string GetName() = 0;
+    virtual ~automat() {};
+};//расписываем потомка для каждого автомата
+
+class automat1 : public automat {
+    typedef void(automat1::* FP) (); //функция перехода
+    FP matr[5][4];//двумерный массив из функций перехода
+public:
+    automat1() {
+        name = "Автомат 1";
+        state = 0;
+        matr[0][1] = &automat1::A1;     matr[0][0] = &automat1::Error0; matr[0][2] = &automat1::Err;
+        matr[1][1] = &automat1::A2;     matr[1][0] = &automat1::Error1; matr[1][2] = &automat1::Err;
+        matr[2][1] = &automat1::A1;     matr[2][0] = &automat1::A3;     matr[2][2] = &automat1::Err;
+        matr[3][1] = &automat1::Error2; matr[3][0] = &automat1::A4;     matr[3][2] = &automat1::Err;
+        matr[4][1] = &automat1::Error2; matr[4][0] = &automat1::A3;     matr[4][2] = &automat1::Err;//таблица в которой мы расписываем первым столбцом номер состояния а вторым его вход
+    }
+
+    int automatTranslit(char ch) {
+        switch (ch) {
+            case '0': return 0;
+            case '1': return 1;
+            default: return 2;
+        }
+    }//расписываем распознаватель для нашего языка
+
+    void A1() {state = 1;}
+
+    void A2() {state = 2;}
+
+    void A3() { state = 3;}
+
+    void A4() { state = 4; }//расписываем функции которые при их использование изменяют состояние
+
+    void Error0() { Error_0 er; er.Process(); exit(0);}
+    void Error1() { Error_1 er; er.Process(); exit(0);}
+    void Error2() { Error_2 er; er.Process(); exit(0);}//прописываем вызовы разного рода ошибок
+
+    void Err() { _Err er; er.Process(); exit(0);}
+
+    void start(string str)//функция которая начинает обрабатывать нашу строку
+    {
+        int n;
+        n = str.length();
+        for (int i = 0; i < n; i++)
+        {
+            int j = automatTranslit(str[i]);
+            (this->*matr[state][j])();
+        }//сначала мы распознаем какой символ прочитали после чего мы в зависимости от этого переходим в какое либо состояние после чего переходим в какую либо фукнцию и меняем СТЕЙТ
+        if (state == 3)
+            cout << "Dood\n";
+        else cout << "Bad\n";
+    }
+    string GetName() { return name; };//функция чтобы меню могло получить автомата которое мы собираемся использовать
+};
+
+class automat2 : public automat
+{
+    typedef void(automat2::* FP) (); //функция перехода
+    FP matr[4][3];
+public:
+    automat2() {
+        state = 0;  name = "Автомат 2";
+        matr[0][0] = &automat2::Error0; matr[0][1] = &automat2::A1;     matr[0][2] = &automat2::Err;
+        matr[1][0] = &automat2::A2;     matr[1][1] = &automat2::A3;     matr[1][2] = &automat2::Err;
+        matr[2][0] = &automat2::A1;     matr[2][1] = &automat2::Error3; matr[2][2] = &automat2::Err;
+        matr[3][0] = &automat2::A2;     matr[3][1] = &automat2::A3;     matr[3][2] = &automat2::Err;
+
+    }
+
+    int automatTranslit(char ch) {
+        switch (ch) {
+            case '0': return 0;
+            case '1': return 1;
+            default: return 2;
+        }
+    }
+    void A0() { state = 0; }
+
+    void A1() { state = 1; }
+
+    void A2() { state = 2; }
+
+    void A3() { state = 3; }
+
+    void Error0() { Error_0 er; er.Process(); exit(0);}
+    void Error3() { Error_3 er; er.Process(); exit(0);}
+
+
+    void Err() { _Err er; er.Process(); exit(0);}
+
+    void start(string str)
+    {
+        int n;
+        n = str.length();
+        for (int i = 0; i < n; i++)
+        {
+            int j = automatTranslit(str[i]);
+            (this->*matr[state][j])();
+        }
+        if (state == 3)
+        {
+            cout << "Good\n" << endl;
+        }
+        else
+        {
+            cout << "Bad\n" << endl;
+        }
+    }
+    string GetName() { return name; };
+};
+
+class automat3 :public automat
+{
+    typedef void(automat3::* FP) (); //функция перехода
+    FP matr[4][3];
+public:
+    automat3() {
+        state = 0;  name = "Автомат 3";
+        matr[0][0] = &automat3::Error0; matr[0][1] = &automat3::A1;    matr[0][2] = &automat3::Err;
+        matr[1][0] = &automat3::Error4; matr[1][1] = &automat3::A2;    matr[1][2] = &automat3::Err;
+        matr[2][0] = &automat3::A3;      matr[2][1]= &automat3::Error5; matr[2][2] = &automat3::Err;
+        matr[3][0] = &automat3::A3;     matr[3][1] = &automat3::A1;    matr[3][2] = &automat3::Err;
+    }
+    int automatTranslit(char ch) {
+        switch (ch) {
+            case '0': return 0;
+            case '1': return 1;
+            default: return 2;
+        }
+    }
+    void A0() { state = 0; }
+
+    void A1() { state = 1; }
+
+    void A2() { state = 2; }
+
+    void A3() { state = 3; }
+
+    void Error0() { Error_0 er; er.Process(); exit(0);}
+    void Error4() { Error_4 er; er.Process(); exit(0);}
+    void Error5() { Error_5 er; er.Process(); exit(0);}
+
+
+    void Err() { _Err er; er.Process(); exit(0);}
+
+    void start(string str)
+    {
+        int n;
+        n = str.length();
+        for (int i = 0; i < n; i++)
+        {
+            int j = automatTranslit(str[i]);
+            (this->*matr[state][j])();
+        }
+        if (state == 3)
+        {
+            cout << "Good\n" << endl;
+        }
+        else
+        {
+            cout << "Bad\n" << endl;
+        }
+    }
+    string GetName() { return name; };
+};
+
+class automat4 : public automat {
+    typedef void(automat4::* FP)();
+    FP matr[3][3];
+public:
+    automat4() {
+        state = 0; name = "Автомат 4";
+        matr[0][0] = &automat4::A1; matr[0][1] = &automat4::A1; matr[0][2] = &automat4::Err;
+        matr[1][0] = &automat4::A2; matr[1][1] = &automat4::A2; matr[1][2] = &automat4::Err;
+        matr[2][0] = &automat4::Error6; matr[2][1] = &automat4::A0; matr[2][2] = &automat4::Err;
+    }
+
+    void A0() { state = 0; }
+    void A1() { state = 1; }
+    void A2() { state = 2; }
+    void Error6() { Error_6 er; er.Process(); exit(0); }
+    void Err() { _Err er; er.Process(); exit(0); }
+
+    int automatTranslit(char ch)
+    {
+        switch (ch) {
+            case '1': return 1;
+            case '0': return 0;
+            default: return 2;
+        }
+    }
+
+    void start(string str)
+    {
+        int n;
+        n = str.length();
+        for (int i = 0; i < n; i++)
+        {
+            int j = automatTranslit(str[i]);
+            (this->*matr[state][j])();
+        }
+        if (state == 0 ||state == 1 ||state == 2)
+        {
+            cout << "Good\n" << endl;
+        }
+        else
+        {
+            cout << "Bad\n" << endl;
+        }
+    }
+
+    string GetName() { return name; };
+};
+
+class automat5 : public automat {
+    typedef void(automat5::* FP)();
+    FP matr[3][3];
+public:
+    automat5() {
+        state = 0; name = "Автомат 5";
+        matr[0][0] = &automat5::A1; matr[0][1] = &automat5::A2; matr[0][2] = &automat5::Err;
+        matr[1][0] = &automat5::A1; matr[1][1] = &automat5::A2; matr[1][2] = &automat5::Err;
+        matr[2][0] = &automat5::A2; matr[2][1] = &automat5::A2; matr[2][2] = &automat5::Err;
+    }
+
+    void A1() { state = 1; }
+    void A2() { state = 2; }
+    void Err() { _Err er; er.Process(); exit(0); }
+
+    int automatTranslit(char ch)
+    {
+        switch (ch) {
+            case '1': return 1;
+            case '0': return 0;
+            default: return 2;
+        }
+    }
+
+    void start(string str)
+    {
+        int n;
+        n = str.length();
+        for (int i = 0; i < n; i++)
+        {
+            int j = automatTranslit(str[i]);
+            (this->*matr[state][j])();
+        }
+        if (state == 2)
+        {
+            cout << "Good\n" << endl;
+        }
+        else
+        {
+            cout << "Bad\n" << endl;
+        }
+    }
+
+    string GetName() { return name; };
+};
+
+class Menu
+{
+private:
+    automat** pObj;
+    int nItem;
+    int SelectItem()
+    {
+        int Item;
+        cout << "Введите номер: ";
+        while (true)
+        {
+            cin >> Item;
+            if (Item > 0 && Item <= nItem)
+            {
+                return Item;
+            }
+            else
+            {
+                cout << "error" << endl;
+            }
+        }
+    }
+public:
+    Menu(automat** Obj, int k1)
+    {
+        pObj = new automat * [k1 + 1];//выделяем место под новый автомат
+        for (int i = 0; i < k1; i++)
+        {
+            pObj[i] = Obj[i];
+        }//копируем в него автомат котоырй передали
+        pObj[k1] = 0;
+        nItem = k1 + 1;
+    }
+
+    automat* SelectObj()
+    {
+        for (int i = 0; i < nItem; i++)
+        {
+            cout << i + 1 << ". ";
+            if (pObj[i])
+            {
+                cout << pObj[i]->GetName() << endl;
+            }
+            else
+            {
+                cout << "exit" << endl;
+            }
+        }//выводим в цикле меню
+        cout << "\n";
+        int number = SelectItem();
+        return pObj[number - 1];
+    }
+
+    ~Menu()
+    {
+        delete[] pObj;
+    }
+
+};
+
+int main() {
+    setlocale(LC_ALL, "rus");
+    automat1 A1; automat2 A2; automat3 A3; automat4 A4; automat5 A5;//создаем разные объекты автоматов
+    automat* Pobj[] = {&A1, &A2, &A3, &A4, &A5}, * p;// создаем массива который хранит все наши автоматы через указатели
+    int k = sizeof(Pobj) / sizeof(automat*);// количество автоматов K
+    Menu M(Pobj, k);
+    string st;
+    cout << "Введите строку: " << endl;
+    cin >> st;
+    p = M.SelectObj();//делаем выбор в цикле
+    p->start(st);//после этого стартуем автомат который мы передали
+
+    return 0;
+}
